@@ -1,6 +1,7 @@
 import customtkinter as ctk 
 import speech_recognition as sr
 import threading
+from tkinter import filedialog
 
 
 
@@ -19,7 +20,10 @@ class App:
         self.btn = ctk.CTkButton(self.root, text="Record", command=self.recognize_speech)
         self.btn.pack(pady=10)
 
-        self.result = ctk.CTkTextbox(self.root, width=400, height=200)
+        self.btn2 = ctk.CTkButton(self.root, text="Save File", command=self.save_file)
+        self.btn2.pack(pady=10)
+
+        self.result = ctk.CTkTextbox(self.root, width=500, height=200)
         self.result.pack(pady=20)
 
     def recognize_speech(self):
@@ -35,6 +39,26 @@ class App:
             except:
                 self.result.insert("end", "Repeat the sentece\n")
         threading.Thread(target=run).start()  # Evită blocarea GUI
+
+    def save_file(self):  # se apelază la salvarea fișierului
+        content = self.result.get("1.0", "end-1c")  # Extrage textul de la prima linie si prima coloana pana la sfarsit
+        if not content.strip(): # Verifică dacă textbox-ul e gol
+            return #ieșire dacă nu există text de salvat
+        
+        #salveaza dialogul si alegere nume si destinatie fisier
+        filename = filedialog.asksaveasfilename(
+            defaultextension=".txt",
+            filetypes=[("Text files", "*.txt"), ("All files", "*.*")],
+            title="Salvează transcriptul"
+        )
+        
+        if filename:  # Dacă user nu a apăsat Cancel
+            try:
+                with open(filename, 'w', encoding='utf-8') as f: #creeaza/suprascrie fisierul
+                    f.write(content) # Scrie conținutul în fisier
+                print(f"Salvat: {filename}")  # Sau adaugă label feedback
+            except Exception as e:
+                print(f"Eroare: {e}")
 
     def run(self):
         self.root.mainloop()
