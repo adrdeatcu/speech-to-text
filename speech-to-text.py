@@ -23,16 +23,20 @@ class App:
         self.btn2 = ctk.CTkButton(self.root, text="Save File", command=self.save_file)
         self.btn2.pack(pady=10)
 
+        self.btn_clear = ctk.CTkButton(self.root, text="Clear", command=lambda: self.result.delete("1.0", "end"))
+        self.btn_clear.pack(pady=10)
+
         self.result = ctk.CTkTextbox(self.root, width=500, height=200)
         self.result.pack(pady=20)
 
     def recognize_speech(self):
         def run():
             r = sr.Recognizer() #initializam recunoasterea vocala 
+            r.pause_threshold = 1.5 #pragul de pauza
             mic = sr.Microphone() #initializam microfonul
             with mic as source:
-                r.adjust_for_ambient_noise(source)
-                audio = r.listen(source)
+                r.adjust_for_ambient_noise(source, duration=1) #ajustare zgomot de fond
+                audio = r.listen(source, phrase_time_limit=10) #ascultare audio cu limita de 10s
             try:
                 text = r.recognize_google(audio, language='ro-RO')
                 self.result.insert("end", text + "\n")
